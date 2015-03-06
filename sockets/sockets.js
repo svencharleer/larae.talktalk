@@ -1,6 +1,5 @@
-/**
- * Created by svenc on 04/03/15.
- */
+var db = require('../sockets/db.js');
+
 
 
 var timeEntries = [];
@@ -8,6 +7,8 @@ var presenter = -1;
 var likes = [];
 
 module.exports = function (io) {
+
+
     io.on('connection', function (socket) {
         var address = socket.handshake.address;
         console.log('Client connected with id: ' + socket.id + " from " + address.address + ":" + address.port);
@@ -35,7 +36,16 @@ module.exports = function (io) {
         socket.on('newSession', function (msg) {
             if(timeEntries.length > 0 || likes.length > 0)
             {
-                //save entries
+                var sessionData = new db.Sessions();
+                sessionData.talks = timeEntries;
+                sessionData.likes = likes;
+                sessionData.save(function(err, session){
+                    if (err) {
+                        return console.error(err);
+                    } else {
+                        console.log("Session saved");
+                    }
+                });
             }
             timeEntries = [];
             likes = [];
