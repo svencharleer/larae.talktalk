@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>LARAe.talktalk</title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+    <script type="application/javascript" src="bower_components/jquery/dist/jquery.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+
+
+      <script type="application/javascript">
+
+
+          var participants = [false,false,false,false,false];
+          var _socket = io.connect("http://localhost:3000");
+          var presenting = -1;
+          function activate(number) {
+              if(number == presenting) return;
+              participants[number] = !participants[number];
+              for(var i=0;i<5;i++) {
+                  if (i != number)
+                      participants[i] = false;
+              }
+              $( "a" ).each(function() {
+                  $( this ).removeClass( "selected" );
+              });
+            if(participants[number])
+                $("#group"+number).addClass("selected");
+
+              _socket.emit("speaking", participants);
+          }
+
+          function presenter(number)
+          {
+              presenting = number;
+              var names = [];
+              $( ".group" ).each(function() {
+                  names.push($( this).text());
+              });
+              _socket.emit("newSession", {presenter: number, nrOfParticipants:5, names:names});
+          }
+          function drawVersion(number)
+          {
+              _socket.emit("drawVersion", number);
+          }
+
+
+
+
+
+
+
+      </script>
+  </head>
+  <body>
+    <a id="group0" class="group" href="#" onclick="javascript:activate(0);">The InfoVisioneers</a><a id="presenter0" href="#" onclick="javascript:presenter(0);">Set presenter</a><br/>
+    <a id="group1" class="group" href="#" onclick="javascript:activate(1);">LVM</a><a id="presenter0" href="#" onclick="javascript:presenter(1);">Set presenter</a><br/>
+    <a id="group2" class="group" href="#" onclick="javascript:activate(2);">Invisual</a><a id="presenter0" href="#" onclick="javascript:presenter(2);">Set presenter</a><br/>
+    <a id="group3" class="group" href="#" onclick="javascript:activate(3);">Data Chartists</a><a id="presenter0" href="#" onclick="javascript:presenter(3);">Set presenter</a><br/>
+    <a id="group4" class="group" href="#" onclick="javascript:activate(4);">Prof/TA</a><a id="presenter0" href="#" onclick="javascript:presenter(4);">Set presenter</a><br/>
+
+
+  <a href="#" onclick="javascript:drawVersion(0);">Histogram</a><br/>
+  <a href="#" onclick="javascript:drawVersion(1);">Trees</a><br/>
+  <a href="#" onclick="javascript:drawVersion(2);">Feeback</a><br/>
+  <a href="#" onclick="javascript:drawVersion(3);">Solar</a><br/>
+
+  </body>
+</html>
