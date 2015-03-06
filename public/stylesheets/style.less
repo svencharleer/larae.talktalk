@@ -2,27 +2,46 @@
 
 body {
   margin:0px;
+  background-color: #555555;
   font-family: "HelveticaNeue-UltraLight", "Helvetica Neue UltraLight",'Lato',   sans-serif;
+  color:white;
 
 }
 
 
 a {
   display:inline-block;
-  border: solid 1px black;
-  background-color: #00ffff;
+
+  background-color: black;
+  color:white;
   height:30px;
   width:300px;
+  text-decoration: none;
+  text-align:center;
+  margin:1px;
+
+
+}
+
+
+
+a:not(:active) {
+  transition: background-color .25s  ease-in-out;
+  -moz-transition: background-color .25s ease-in-out;
+  -webkit-transition: background-color .25s ease-in-out;
+  background-color: #8DBE8E;
 }
 
 .selected {
   background-color: #bbffbb;
+  color:black;
 }
 
 span {
   display:inline-block;
-  border: solid 1px black;
-  background-color: white;
+
+  text-align:center;
+  margin:1px;
   height:30px;
   width:300px;
 }

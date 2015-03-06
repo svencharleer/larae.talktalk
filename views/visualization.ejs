@@ -8,7 +8,9 @@
     <script type="application/javascript" src="bower_components/Processing.js/processing.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <link href='http://fonts.googleapis.com/css?family=Lato:100' rel='stylesheet' type='text/css'>
-
+    <link href='http://fonts.googleapis.com/css?family=Black+Ops+One' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Orbitron:400,900' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Parisienne' rel='stylesheet' type='text/css'>
     <script type="application/javascript">
 
         var whostalking = "";
@@ -24,22 +26,51 @@
         var prevActivityPerGroup = [];
         var nrOfCommentsPerGroup = [];
         var _drawVersion = function(processing){};
-
+        var _fontBold;
+        var _fontClassic;
+        var _fontClassicBig;
+        var _fontSpace;
 
         function drawSolar(processing)
         {
             if(restarting) return;
 
-
-            processing.background(0xCC2b2b2b);
-            processing.noSmooth();
-
-
-
             var middle = [wwidth / 2, wheight / 2];
             var baseRadius = wheight / 5;
             var nrOfParticipants = activityPerGroup.length -1;
 
+            processing.background(0xFF2b2b2b);
+            processing.noSmooth();
+
+
+            //legend
+            processing.noStroke();
+            processing.fill(0);
+            processing.rect(0,0,120,wheight);
+            processing.fill(255);
+
+
+            processing.textFont(_fontSpace, 15);
+            processing.textAlign(processing.LEFT);
+            processing.text("likes",45, wheight/2+30);
+
+
+            processing.noStroke();
+            processing.fill(0xFFB8E986);
+            processing.ellipse(25, wheight/2+25,10,10);
+
+
+
+            var point1 = [middle[0] + Math.sin((.25  * Math.PI)) * baseRadius, middle[1] + Math.cos((.25  * Math.PI)) * baseRadius];
+            var point2 = [middle[0] + Math.sin((.25  * Math.PI)) * baseRadius * 1.5, middle[1] + Math.cos((.25  * Math.PI)) * baseRadius * 1.5];
+            processing.stroke(0xAAB3DDED);
+            processing.line(point1[0],point1[1],point2[0],point2[1]);
+            processing.line(point2[0],point2[1],point2[0]+70,point2[1]);
+            processing.noStroke();
+            processing.fill(0xAAB3DDED);
+            processing.textFont(_fontSpace, 12);
+            processing.textAlign(processing.LEFT);
+            processing.text("average",point2[0]+10,point2[1]-3);
 
             //draw legend
             //var legendOffset = -1.5 * (2 * Math.PI) / (nrOfParticipants );
@@ -79,15 +110,25 @@
                 var offset = (i > _presenter) ? ((i-1) * (2  * Math.PI) / (nrOfParticipants)) : ((i) * (2  * Math.PI) / (nrOfParticipants));
                 var point = [middle[0] + Math.sin(offset) * radius, middle[1] + Math.cos(offset) * radius];
                 processing.noStroke();
-                processing.fill(0xCCFF3795);
+                //draw active pulsing
+                var alpha = 255;
+                if(whostalking == i)
+                {
+                    alpha = Math.sin((processing.frameCount % 100)/100 * Math.PI)*255;
+                }
+                processing.strokeWeight(8);
+                processing.stroke(255,64,154,alpha)
+                processing.fill(255,55,149);
                 processing.ellipse(point[0], point[1], baseRadius/4, baseRadius/4);
+                processing.strokeWeight(1);
+                processing.noStroke();
                 var legendPoint = [middle[0] + Math.sin(offset) * baseRadius*2, middle[1] + Math.cos(offset) * baseRadius*2];
                 processing.fill(255);
-                processing.textFont(_font, 20);
+                processing.textFont(_fontSpace, 20);
                 processing.textAlign(processing.CENTER);
                 processing.text(_names[i], legendPoint[0],legendPoint[1]);
                 //draw likes
-                processing.fill(0xCCB8E986);
+                processing.fill(0xFFB8E986);
                 for(var j =0; j < nrOfCommentsPerGroup[i]; j++)
                 {
                     var subOffset = j * 2 / (nrOfCommentsPerGroup[i]) * Math.PI;
@@ -104,6 +145,18 @@
         function drawFancyHistogram(processing)
         {
             processing.background(0xCC2b2b2b);
+            processing.noStroke();
+            processing.fill(0xCC7D7D7D);
+            processing.rect(0,0,wwidth,wheight/2);
+            processing.fill(0);
+            processing.rect(0,0,230,wheight);
+            processing.fill(0xFF7D7D7D);
+            processing.textFont(_fontBold, 140);
+            processing.textAlign(processing.LEFT,processing.CENTER);
+            processing.text("FEEDBACK", 240, wheight/4);
+            processing.fill(0xFF2b2b2b);
+            processing.textAlign(processing.LEFT,processing.CENTER);
+            processing.text("LIKES", 240, 3*wheight/4);
             var i = 0;
             var nrOfParticipants = activityPerGroup.length -1;
             var spacing = wheight/3/nrOfParticipants;
@@ -118,10 +171,10 @@
                 var activity = (group/30/1000)*wwidth;
                 processing.rectMode(processing.CORNER);
                 processing.noStroke();
-                processing.fill(0xCCFF3795);
-                processing.rect(200,(offset)*(spacing+10)+0.3*spacing, 2+activity,spacing/3);
+                processing.fill(0xFFFF3795);
+                processing.rect(230,(offset)*(spacing+10)+0.3*spacing, 2+activity,spacing/3);
                 processing.fill(255);
-                processing.rect(200+2+activity,(offset)*(spacing+10)+0.3*spacing, 2,spacing/3);
+                processing.rect(230+2+activity,(offset)*(spacing+10)+0.3*spacing, 2,spacing/3);
 
                 processing.fill(255);
                 processing.textFont(_font, 20);
@@ -140,10 +193,10 @@
                     i++;
                     return;
                 }
-                processing.fill(0xCCB8E986);
+                processing.fill(0xFFB8E986);
                 var offset = (i > _presenter) ? i-1 : i;
                 for(var j =0; j < nrOfCommentsPerGroup[i]; j++) {
-                    processing.rect(200+j*(10+1),(offset)*(spacing+10)+0.3*spacing, 10,spacing/3);
+                    processing.rect(230+j*(10+1),(offset)*(spacing+10)+0.3*spacing, 10,spacing/3);
                 }
 
 
@@ -185,7 +238,7 @@
             var radius = wheight / 3;
             var nrOfParticipants = activityPerGroup.length -1;
 
-                processing.background(0xCC2b2b2b);
+                processing.background(0xFF2b2b2b);
 
 
                 for (var i = 0; i < activityPerGroup.length; i++) {
@@ -218,7 +271,7 @@
             var radius = wheight / 3;
             var nrOfParticipants = activityPerGroup.length -1;
             if(reset && activityPerGroup.length > 0) {
-                processing.background(0xCC2b2b2b);
+                processing.background(0xFF2b2b2b);
 
 
                 for (var i = 0; i < activityPerGroup.length; i++) {
@@ -253,13 +306,13 @@
                 var y = (pathNodePositions[i].y - currentPosition[1]) * (diff/100) * radius/30/400;
                 processing.noStroke();
 
-                processing.fill(0xCCFF3795);
+                processing.fill(0xFFFF3795);
                 processing.ellipse(currentPosition[0],currentPosition[1],4,4);
                 currentPosition[0]+=x;
                 currentPosition[1]+=y;
 
 
-                processing.fill(0xCC02FCF8);
+                processing.fill(0xFF02FCF8);
                 processing.ellipse(currentPosition[0],currentPosition[1],4,4);
                 prevActivityPerGroup[i] = activityPerGroup[i];
 
@@ -273,14 +326,36 @@
         function drawFeedback(processing)
         {
 
-            processing.background(0xCC2b2b2b);
+            processing.background(0xFF2b2b2b);
             var middle = [wwidth/2, wheight/2];
             var radius = wheight/3;
             var baseRadius = wheight / 5;
             var positions = [];
 
-            processing.noFill();
-            processing.stroke(0xCCB3DDED);
+            //legend
+            processing.noStroke();
+            processing.fill(0);
+            processing.rect(0,0,120,wheight);
+            processing.fill(255);
+            processing.textFont(_font, 15);
+            processing.textAlign(processing.LEFT);
+            processing.text("feedback",45, wheight/2-30);
+
+            processing.textFont(_font, 15);
+            processing.textAlign(processing.LEFT);
+            processing.text("likes",45, wheight/2+30);
+
+            processing.stroke(255,55,149,255);
+            processing.strokeWeight(2);
+            processing.line(15, wheight/2-35, 40, wheight/2-35);
+
+            processing.noStroke();
+            processing.fill(0xFFB8E986);
+            processing.ellipse(25, wheight/2+25,20,20);
+
+
+            processing.noStroke();
+            processing.fill(0xFF555555);
             processing.ellipse(middle[0],middle[1],baseRadius * 2.7, baseRadius *2.7);
 
             for(var i=0;i<activityPerGroup.length;i++)
@@ -291,13 +366,18 @@
                 if(i != _presenter) {
 
                     if( activityPerGroup[i] > 0) {
-                        processing.stroke(0xCCFF3795);
+                        var alpha = 255;
+                        if(whostalking == i)
+                        {
+                            alpha = Math.sin((processing.frameCount % 100)/100 * Math.PI)*255;
+                        }
+                        processing.stroke(255,55,149,alpha);
                         processing.strokeWeight(activityPerGroup[i] / 400);
                         processing.line(positions[i].x, positions[i].y, positions[_presenter].x, positions[_presenter].y);
 
                     }
                     processing.noStroke();
-                    processing.fill(0xCCB8E986);
+                    processing.fill(0xFFB8E986);
                     processing.ellipse(positions[i].x,positions[i].y,baseRadius/4+(nrOfCommentsPerGroup[i]*5),baseRadius/4+(nrOfCommentsPerGroup[i]*5));
 
                 }
@@ -313,7 +393,7 @@
             processing.strokeWeight(1);
             if(_presenter>-1) {
                 processing.noStroke();
-                processing.fill(0xCCFF3795);
+                processing.fill(0xFFFF3795);
                 processing.ellipse(positions[_presenter].x, positions[_presenter].y, baseRadius/4,baseRadius/4);
 
             }
@@ -325,10 +405,30 @@
             //draw bars
             var i = 0;
             var positionX = wwidth/(activityPerGroup.length-1+2);
-            //processing.background(0xCC2b2b2b);
-            processing.background(0xCCffffff);
+            //processing.background(0xFF2b2b2b);
+            processing.background(0xFFffffff);
+            processing.noStroke();
+            processing.fill(0xFFD9EBFE);
+            processing.rect(0,0,wwidth,wheight);
+            processing.fill(0xFF7A8F18);
+            processing.rect(0,wheight-30,wwidth,wheight);
+
             processing.fill(255);
-            processing.smooth();
+            processing.pushMatrix();
+            processing.translate(100, wheight/2);
+            processing.rotate(-0.5 * Math.PI);
+
+            processing.textFont(_fontClassicBig, 80);
+            processing.textAlign(processing.CENTER);
+            processing.text("Feedback >",0,0);
+            processing.popMatrix();
+
+            processing.stroke(0xFF82171A);
+            processing.fill(0xFFFD0D1B);
+            processing.ellipse(10, wheight-60, 10, 10);
+            processing.textFont(_fontClassic, 20);
+            processing.textAlign(processing.CENTER);
+            processing.text("= like",40, wheight-55);
 
             activityPerGroup.forEach(function(group){
                 if(i == _presenter) {
@@ -338,12 +438,12 @@
                 var offset = (i > _presenter) ? i-1 : i;
                 var activity = (group*wwidth)/400/30;
                 processing.rectMode(processing.CORNER);
-                processing.stroke(0xCC554D40);
+                processing.stroke(0xFF554D40);
                 processing.strokeWeight(2);
-                processing.fill(0xCCB57E64);
+                processing.fill(0xFFB57E64);
                 processing.rect(positionX * (offset+1) + positionX *.2 , wheight-30, positionX *.4, -20);
-                processing.stroke(0xCC57A23B);
-                processing.fill(0xCC5DFE5E);
+                processing.stroke(0xFF57A23B);
+                processing.fill(0xFF5DFE5E);
                 processing.rect(positionX * (offset+1), wheight-50-activity, positionX *.8, activity,18);
                 var numberOfApples = 4;
                 for(var j =0; j < nrOfCommentsPerGroup[i]; j++)
@@ -354,13 +454,13 @@
                     var yOffset = wheight-40-activity + 2*((j-j%numberOfApples)/numberOfApples)*(wheight/60);
                     var xOffset = positionX * (offset+1) + ((j % numberOfApples) +.5) * positionX *.8/numberOfApples;
 
-                    processing.stroke(0xCC82171A);
-                    processing.fill(0xCCFD0D1B);
+                    processing.stroke(0xFF82171A);
+                    processing.fill(0xFFFD0D1B);
                     processing.ellipse(xOffset, yOffset, 10, 10);
                 }
 
                 processing.fill(0);
-                processing.textFont(_font, 20);
+                processing.textFont(_fontClassic, 20);
                 processing.textAlign(processing.CENTER);
                 processing.text(_names[i], positionX * (offset+1) + positionX *.4 , 20);
                 i++;
@@ -404,7 +504,11 @@
             // attaching the sketch to the canvas
             var canvas = document.getElementById("canvas1");
             var p = new Processing(canvas, sketch);
-            _font = p.createFont("HelveticaNeue-UltraLight",20);
+            _font = p.createFont("Verdana");//"HelveticaNeue-UltraLight",20);
+            _fontBold = p.createFont("Orbitron",140);//"Black Ops One",140);
+            _fontClassic = p.createFont("Parisienne",20);
+            _fontClassicBig = p.createFont("Parisienne",80);
+            _fontSpace = p.createFont("Orbitron",20);
 
         };
 
