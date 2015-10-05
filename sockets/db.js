@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
-//mongoose.connect('mongodb://localhost/datastore');
-mongoose.connect('mongodb://ensor.cs.kuleuven.be:27017/talktalk');
+mongoose.connect('mongodb://localhost/datastore');
+//mongoose.connect('mongodb://ensor.cs.kuleuven.be:27017/talktalk');
 
 var db_connection = mongoose.connection;
 db_connection.on('error', console.error.bind(console, 'connection error:'));

@@ -11,7 +11,7 @@ var group = require('./routes/group');
 var visualization = require('./routes/visualization');
 var app = express();
 
-
+var context = "/talktalk";
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -24,13 +24,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(require('less-middleware')(path.join(__dirname, 'public')));
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/bower_components',  express.static(__dirname + '/bower_components'));
+app.use(path.join(context,'/public'),express.static(path.join(__dirname, 'public')));
+app.use(path.join(context,'/bower_components'),  express.static(__dirname + '/bower_components'));
 
-app.use('/', routes);
-app.use('/ta', ta);
-app.use('/group', group);
-app.use('/visualization', visualization);
+app.use(path.join(context,'/'), routes);
+app.use(path.join(context,'/ta'), ta);
+app.use(path.join(context,'/group'), group);
+app.use(path.join(context,'/visualization'), visualization);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
